@@ -20,16 +20,21 @@ from flask import render_template
 app = Flask(__name__)
 
 
-@app.route('/hbnb_filters/')
-def hbnb_filters():
+@app.route('/hbnb/')
+def hbnb():
     states = storage.all("State").values()
-    result = []
-    for state in sorted(states, key=lambda x: x.name):
-        result.append([state, state.cities])
-
     amenities = storage.all("Amenity").values()
-    return render_template("10-hbnb_filters.html",
-                           amenities=amenities, result=result)
+    places_tmp = storage.all("Place").values()
+    owners = storage.all("User")
+    places = []
+    for k, v in owners.items():
+        for place in places_tmp:
+            if k == place.user_id:
+                places.append(["{} {}".format(
+                    v.first_name, v.last_name), place])
+    places.sort(key=lambda x: x[1].name)
+    return render_template("100-hbnb.html",
+                           amenities=amenities, result=states, places=places)
 
 
 @app.teardown_appcontext
